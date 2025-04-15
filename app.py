@@ -1,18 +1,27 @@
-from flask import Flask, request, jsonify
-import joblib
+import streamlit as st
+from sklearn.datasets import load_iris
+from sklearn.ensemble import RandomForestClassifier
 
-app = Flask(__name__)
-model = joblib.load("model.pkl")
+# Load the dataset
+iris = load_iris()
 
-@app.route('/')
-def home():
-    return "Iris Classifier is running!"
+# App title
+st.title("🌸 Iris Flower Classifier")
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    data = request.json
-    prediction = model.predict([data['features']])
-    return jsonify({'prediction': prediction.tolist()})
+# Inputs
+sepal_length = st.slider("Sepal length (cm)", 4.0, 8.0, 5.1)
+sepal_width = st.slider("Sepal width (cm)", 2.0, 4.5, 3.5)
+petal_length = st.slider("Petal length (cm)", 1.0, 7.0, 1.4)
+petal_width = st.slider("Petal width (cm)", 0.1, 2.5, 0.2)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# Classifier
+model = RandomForestClassifier()
+model.fit(iris.data, iris.target)
+
+# Predict
+features = [[sepal_length, sepal_width, petal_length, petal_width]]
+prediction = model.predict(features)
+species = iris.target_names[prediction[0]]
+
+# Output
+st.success(f"Predicted species: **{species}**")
